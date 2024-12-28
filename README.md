@@ -1,4 +1,4 @@
-#Rusty-serial
+# Rusty-serial
 
 
 Serial port communication using rust. You can read and write using the serial port.
