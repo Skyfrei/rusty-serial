@@ -1,0 +1,9 @@
+[package]
+name = "rusty-serial"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serialport = { git = "https://github.com/serialport/serialport-rs", version = "4.6.2-alpha.0" }
+
+
