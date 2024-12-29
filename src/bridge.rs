@@ -2,6 +2,7 @@ use serialport;
 use serialport::SerialPort;
 use serialport::SerialPortInfo;
 use std::io;
+use std::process;
 use std::time::Duration;
 use std::u8;
 use crate::args;
@@ -32,7 +33,6 @@ pub fn comm_with_serial_port(){
             read_serial(&mut connected_port);
             write_serial(&mut connected_port);
         }
-        close_port(connected_port);
     }
 }
 
@@ -42,7 +42,6 @@ fn list_all_ports() -> Vec<SerialPortInfo>{
     for p in &ports{
         println!("{}. {}", iterator, p.port_name);
         iterator += 1;
-
     }
     return ports;
 }
@@ -59,20 +58,6 @@ fn open_port(port_name: &String) -> Box<dyn SerialPort>{
     return port;
 }
 
-//fn read_write_serial(
-//    port: &mut Box<dyn SerialPort>,
-//    read_stats: &mut Stats<'a>, 
-//    write_stats: &mut Stats<'a>
-//){
-//    let mut buf = vec![0u8; read_stats.data.len()];
-//
-//    for _ in 0..read_stats.iterations{
-//        write_stats.start();
-//        
-//
-//    }
-//}
-
 fn read_serial(port: &mut Box<dyn SerialPort>){
 
     let buffer_size: u32 = port.bytes_to_read().expect("Failed to read the port bytes");
@@ -81,7 +66,6 @@ fn read_serial(port: &mut Box<dyn SerialPort>){
     check_for_errors(res);
 
     print!("There is {} bytes to read.\nBytes: {:?} \n", buffer_size, buffer);
-         
 }
 
 fn check_for_errors(res: Result<usize, io::Error>){
@@ -93,16 +77,31 @@ fn check_for_errors(res: Result<usize, io::Error>){
 
 fn write_serial(port: &mut Box<dyn SerialPort>) {
     println!("\nWrite the serial message!\n");
-    port.flush();
     let mut buffer = String::new();
     let _ = io::stdin().read_line(&mut buffer);
+    
+    let buffer_trimmed = buffer.trim();
 
+    if buffer_trimmed == ""{
+        return;
+    }
+    else if buffer_trimmed == "exit"{
+        close_port(port);
+        kill_program(0);
+    }
+
+    port.flush();
     let write_buffer = buffer.as_bytes();
     let res = port.write(&write_buffer);
     check_for_errors(res);
 
 }
 
-fn close_port(port: Box<dyn SerialPort>){
+fn close_port(port: &mut Box<dyn SerialPort>){
     let _ = std::mem::drop(port);
 }
+
+fn kill_program(err_code: i32){
+    process::exit(err_code);
+}
+
