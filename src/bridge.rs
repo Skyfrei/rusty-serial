@@ -5,13 +5,12 @@ use std::io;
 use std::process;
 use std::time::Duration;
 use std::u8;
-use crate::args;
 
 struct SerialCommunicationSettings{
     comm_speed: u32
 }
 
-pub fn comm_with_serial_port(){
+pub fn comm_with_serial_port(baudrate: u32){
     let port_list = list_all_ports();
 
     println!();
@@ -27,7 +26,7 @@ pub fn comm_with_serial_port(){
     }
     else{
         println!("");
-        let mut connected_port = open_port(&port_list[buffer_to_int].port_name);
+        let mut connected_port = open_port(&port_list[buffer_to_int].port_name, baudrate);
         loop {    
             read_serial(&mut connected_port);
             write_serial(&mut connected_port);
@@ -45,11 +44,10 @@ fn list_all_ports() -> Vec<SerialPortInfo>{
     return ports;
 }
 
-fn open_port(port_name: &String) -> Box<dyn SerialPort>{
+fn open_port(port_name: &String, baudrate: u32) -> Box<dyn SerialPort>{
     // Use this to set the comm speed
-    let _ = args::get_arguments();
-
-    let serial_settings = SerialCommunicationSettings { comm_speed: 115200 };
+    
+    let serial_settings = SerialCommunicationSettings { comm_speed: baudrate };
     let port = serialport::new(port_name, serial_settings.comm_speed)
         .timeout(Duration::from_millis(1000))
         .open().expect("Failed to open port");
