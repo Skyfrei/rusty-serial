@@ -6,7 +6,6 @@ use std::process;
 use std::time::Duration;
 use std::u8;
 use crate::args;
-use std::{thread, time};
 
 struct SerialCommunicationSettings{
     comm_speed: u32
@@ -70,7 +69,7 @@ fn read_serial(port: &mut Box<dyn SerialPort>){
 
 fn check_for_errors(res: Result<usize, io::Error>){
     match res{
-        Ok(v) => print!("Operation succeessful.\n"),
+        Ok(_v) => print!("Operation succeessful.\n"),
         Err(e) => println!("{}\n", e),
     }
 }
@@ -90,7 +89,7 @@ fn write_serial(port: &mut Box<dyn SerialPort>) {
         kill_program(0);
     }
 
-    port.flush();
+    let _ = port.flush();
     let write_buffer = buffer.as_bytes();
     let res = port.write(&write_buffer);
     check_for_errors(res);
