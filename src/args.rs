@@ -1,5 +1,8 @@
 use std::env;
+use serialport::{DataBits, FlowControl, StopBits};
+
 use crate::bridge;
+use crate::bridge::SerialCommunicationSettings;
 
 
 struct Author{
@@ -22,6 +25,10 @@ pub fn get_arguments(){
 
 fn parse_arguments(args: Vec<String>){
     let mut baudrate: u32 = 115200;
+    let mut data_bits: DataBits = DataBits::Eight;
+    let mut stop_bits: StopBits = StopBits::One;
+    let mut flow_control: FlowControl = FlowControl::None;
+
     let auth = Author{
         email: String::from("Klavio Tarka <tarkaklavio@gmail.com>"),
         name: String::from("Rusty-serial"),
@@ -41,10 +48,49 @@ fn parse_arguments(args: Vec<String>){
                 }
             }        
         }
+        else if args.iter().nth(i).unwrap() == "-d"{
+            if i + 1 >= args.len() - 1{
+                let next_arg: u32 = args.iter().nth(i + 1).unwrap().parse().expect("Incorrect data bit");
+                match next_arg{
+                    5 => data_bits = DataBits::Five,
+                    6 => data_bits = DataBits::Six,
+                    7 => data_bits = DataBits::Seven,
+                    8 => data_bits = DataBits::Eight,
+                    _ => println!("Wrong Data bits, defaulting to 8")
+                }
+            }        
+        }
+        else if args.iter().nth(i).unwrap() == "-s"{
+            if i + 1 >= args.len() - 1{
+                let next_arg: u32 = args.iter().nth(i + 1).unwrap().parse().expect("Incorrect stop bit");
+                match next_arg{
+                    1 => stop_bits = StopBits::One,
+                    2 => stop_bits = StopBits::Two,
+                    _ => println!("Wrong Stop Bits, defaulting to 1")
+                }
+            }
+        }
+        else if args.iter().nth(i).unwrap() == "-f"{
+            if i + 1 >= args.len() - 1{
+                let next_arg: u32 = args.iter().nth(i + 1).unwrap().parse().expect("Incorrect flow control");
+                match next_arg{
+                    1 => flow_control = FlowControl::Software,
+                    2 => flow_control = FlowControl::Hardware,
+                    _ => flow_control = FlowControl::None
+                }
+            }  
+        }
     }
-    call_program(baudrate);
+    let serial_settings = SerialCommunicationSettings
+    {
+        comm_speed: baudrate,
+        data_bits: data_bits,
+        stop_bits: stop_bits,
+        flow_control: flow_control,
+    };
+    call_program(serial_settings);
 }
 
-fn call_program(baudrate: u32){
-    bridge::comm_with_serial_port(baudrate);
+fn call_program(serial_settings: SerialCommunicationSettings){
+    bridge::comm_with_serial_port(serial_settings);
 }

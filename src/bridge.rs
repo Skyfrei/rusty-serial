@@ -1,5 +1,6 @@
 use serialport;
 use serialport::DataBits;
+use serialport::FlowControl;
 use serialport::SerialPort;
 use serialport::SerialPortInfo;
 use serialport::StopBits;
@@ -8,11 +9,14 @@ use std::process;
 use std::time::Duration;
 use std::u8;
 
-struct SerialCommunicationSettings{
-    comm_speed: u32
+pub struct SerialCommunicationSettings{
+    pub comm_speed: u32,
+    pub data_bits: DataBits,
+    pub stop_bits: StopBits,
+    pub flow_control: FlowControl
 }
 
-pub fn comm_with_serial_port(baudrate: u32){
+pub fn comm_with_serial_port(serial_settings: SerialCommunicationSettings){
     let port_list = list_all_ports();
 
     println!();
@@ -27,7 +31,7 @@ pub fn comm_with_serial_port(baudrate: u32){
         println!("Incorrect port. Try running the program again!");    
     }
     else{
-        let mut connected_port = open_port(&port_list[buffer_to_int].port_name, baudrate);
+        let mut connected_port = open_port(&port_list[buffer_to_int].port_name, serial_settings);
         loop {    
             read_serial(&mut connected_port);
             write_serial(&mut connected_port);
@@ -45,20 +49,18 @@ fn list_all_ports() -> Vec<SerialPortInfo>{
     return ports;
 }
 
-fn open_port(port_name: &String, baudrate: u32) -> Box<dyn SerialPort>{
-    let serial_settings = SerialCommunicationSettings { comm_speed: baudrate };
-    let mut port = serialport::new(port_name, serial_settings.comm_speed)
-        .data_bits(DataBits::Eight)
-        .stop_bits(StopBits::One)
-        .flow_control(serialport::FlowControl::Software)
-        .timeout(Duration::from_millis(1000))
+fn open_port(port_name: &String, settings: SerialCommunicationSettings) -> Box<dyn SerialPort>{
+    let port = serialport::new(port_name, settings.comm_speed)
+        .data_bits(settings.data_bits)
+        .stop_bits(settings.stop_bits)
+        .flow_control(settings.flow_control)
+        .timeout(Duration::from_millis(100))
         .open().expect("Failed to open port");
 
     return port;
 }
 
 fn read_serial(port: &mut Box<dyn SerialPort>){
-    let buffer_size: u32 = port.bytes_to_read().expect("Failed to read the port bytes");
     let mut buffer: Vec<u8> = vec![0; 1000];
     let res = port.read(buffer.as_mut_slice());
     check_for_errors(res);   
