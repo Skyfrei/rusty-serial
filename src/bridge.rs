@@ -67,7 +67,7 @@ fn read_serial(port: &mut Box<dyn SerialPort>){
 
 fn check_for_errors(res: Result<usize, io::Error>){
     match res{
-        Ok(_v) => print!("Operation succeessful.\n"),
+        Ok(_v) => print!(""),
         Err(e) => println!("{}\n", e),
     }
 }
