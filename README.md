@@ -14,7 +14,14 @@ Currently:
 
 -h gives the necessary information to run the program properly
 
--b baudrate to communicate with your port
+-b sets baudrate of the communication
+
+-d set data bits
+
+-s set stop bits
+
+-f set flowcontrol
+
 
 # Functionality
 
