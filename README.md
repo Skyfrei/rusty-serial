@@ -1,6 +1,6 @@
 # Rusty-serial
 
-
+.
 Serial port communication using rust, can read and write (NOT SIMMULTANIOUSLY FOR THE TIME BEING). However, you can read and write with very little delay between each operation.
 You can read and write using the serial port. Actually usable and prints out when errors are happening.
 Easy to understand and use, although currently the functionalities are a bit limited.
