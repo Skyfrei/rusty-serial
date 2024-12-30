@@ -1,6 +1,8 @@
 use serialport;
+use serialport::DataBits;
 use serialport::SerialPort;
 use serialport::SerialPortInfo;
+use serialport::StopBits;
 use std::io;
 use std::process;
 use std::time::Duration;
@@ -25,7 +27,6 @@ pub fn comm_with_serial_port(baudrate: u32){
         println!("Incorrect port. Try running the program again!");    
     }
     else{
-        println!("");
         let mut connected_port = open_port(&port_list[buffer_to_int].port_name, baudrate);
         loop {    
             read_serial(&mut connected_port);
@@ -36,7 +37,7 @@ pub fn comm_with_serial_port(baudrate: u32){
 
 fn list_all_ports() -> Vec<SerialPortInfo>{
     let ports = serialport::available_ports().expect("No ports found!");
-    let mut iterator = 1;
+    let mut iterator = 0;
     for p in &ports{
         println!("{}. {}", iterator, p.port_name);
         iterator += 1;
@@ -45,10 +46,11 @@ fn list_all_ports() -> Vec<SerialPortInfo>{
 }
 
 fn open_port(port_name: &String, baudrate: u32) -> Box<dyn SerialPort>{
-    // Use this to set the comm speed
-    
     let serial_settings = SerialCommunicationSettings { comm_speed: baudrate };
-    let port = serialport::new(port_name, serial_settings.comm_speed)
+    let mut port = serialport::new(port_name, serial_settings.comm_speed)
+        .data_bits(DataBits::Eight)
+        .stop_bits(StopBits::One)
+        .flow_control(serialport::FlowControl::Software)
         .timeout(Duration::from_millis(1000))
         .open().expect("Failed to open port");
 
@@ -56,19 +58,24 @@ fn open_port(port_name: &String, baudrate: u32) -> Box<dyn SerialPort>{
 }
 
 fn read_serial(port: &mut Box<dyn SerialPort>){
-
     let buffer_size: u32 = port.bytes_to_read().expect("Failed to read the port bytes");
-    let mut buffer: Vec<u8> = Vec::new();
-    let res = port.read(&mut buffer);
-    check_for_errors(res);
+    let mut buffer: Vec<u8> = vec![0; 1000];
+    let res = port.read(buffer.as_mut_slice());
+    check_for_errors(res);   
+    let mut ascii_bufffer: Vec<char> = Vec::new();
 
-    print!("There is {} bytes to read.\nBytes: {:?} \n", buffer_size, buffer);
+    for c in buffer{
+        let temp_c: char = c as char;
+        ascii_bufffer.push(temp_c);
+        print!("{temp_c}");
+    }
+    print!("=============================================================================================================");
 }
 
 fn check_for_errors(res: Result<usize, io::Error>){
     match res{
         Ok(_v) => print!(""),
-        Err(e) => println!("{}\n", e),
+        Err(e) => println!("Error: {}\n", e),
     }
 }
 
@@ -76,7 +83,6 @@ fn write_serial(port: &mut Box<dyn SerialPort>) {
     println!("\nWrite the serial message!\n");
     let mut buffer = String::new();
     let _ = io::stdin().read_line(&mut buffer);
-    
     let buffer_trimmed = buffer.trim();
 
     if buffer_trimmed == ""{
@@ -87,11 +93,11 @@ fn write_serial(port: &mut Box<dyn SerialPort>) {
         kill_program(0);
     }
 
-    let _ = port.flush();
-    let write_buffer = buffer.as_bytes();
-    let res = port.write(&write_buffer);
-    check_for_errors(res);
 
+    let write_buffer = buffer.as_bytes();
+    let res = port.write(write_buffer);
+    let _ = port.flush();
+    check_for_errors(res);
 }
 
 fn close_port(port: &mut Box<dyn SerialPort>){
