@@ -11,6 +11,7 @@ Similar to gtkterm, but without an annoying GUI. Fully terminal based.
 
 Currently:
 
+```sh
 -h gives the necessary information to run the program properly
 
 -b sets baudrate of the communication
@@ -20,7 +21,7 @@ Currently:
 -s set stop bits
 
 -f set flowcontrol
-
+```
 
 # Functionality
 

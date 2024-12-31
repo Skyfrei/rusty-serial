@@ -18,7 +18,6 @@ pub struct SerialCommunicationSettings{
 
 pub fn comm_with_serial_port(serial_settings: SerialCommunicationSettings){
     let port_list = list_all_ports();
-
     println!();
     println!("Please select the port you want to communicate with");
 
@@ -94,7 +93,6 @@ fn write_serial(port: &mut Box<dyn SerialPort>) {
         close_port(port);
         kill_program(0);
     }
-
 
     let write_buffer = buffer.as_bytes();
     let res = port.write(write_buffer);
