@@ -34,3 +34,5 @@ First reading the port begins, and it shows how many bytes can be read.
 After reading the port, we can write a command or just proceed with reading again. You can proceed with the next read operation by simply enter-ing.
 
 You can also type exit during write operation if u want to exit the program.
+
+Simply send an empty (just enter) serial message to read the next messages from the serial port.
