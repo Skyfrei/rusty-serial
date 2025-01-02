@@ -32,8 +32,9 @@ pub fn comm_with_serial_port(serial_settings: SerialCommunicationSettings){
     else{
         let mut connected_port = open_port(&port_list[buffer_to_int].port_name, serial_settings);
         loop {    
-            read_serial(&mut connected_port);
             write_serial(&mut connected_port);
+            read_serial(&mut connected_port);
+
         }
     }
 }
@@ -49,18 +50,21 @@ fn list_all_ports() -> Vec<SerialPortInfo>{
 }
 
 fn open_port(port_name: &String, settings: SerialCommunicationSettings) -> Box<dyn SerialPort>{
-    let port = serialport::new(port_name, settings.comm_speed)
+    let mut port = serialport::new(port_name, settings.comm_speed)
         .data_bits(settings.data_bits)
         .stop_bits(settings.stop_bits)
         .flow_control(settings.flow_control)
-        .timeout(Duration::from_millis(100))
+        .timeout(Duration::from_millis(3000))
         .open().expect("Failed to open port");
+
+//    port.write_data_terminal_ready(true).unwrap();
+//    port.write_request_to_send(true).unwrap();
 
     return port;
 }
 
 fn read_serial(port: &mut Box<dyn SerialPort>){
-    let mut buffer: Vec<u8> = vec![0; 1000];
+    let mut buffer: Vec<u8> = vec![0; 10000];
     let res = port.read(buffer.as_mut_slice());
     check_for_errors(res);   
     let mut ascii_bufffer: Vec<char> = Vec::new();
@@ -94,10 +98,17 @@ fn write_serial(port: &mut Box<dyn SerialPort>) {
         kill_program(0);
     }
 
-    let write_buffer = buffer.as_bytes();
-    let res = port.write(write_buffer);
-    let _ = port.flush();
-    check_for_errors(res);
+
+    let write_buffer = format!("{}\r\n", buffer_trimmed).into_bytes();
+    match port.write_all(&write_buffer) {
+        Ok(_) => {
+            match port.flush() {
+                Ok(_) => println!("Message sent successfully"),
+                Err(e) => println!("Failed to flush port: {}", e)
+            }
+        },
+        Err(e) => println!("Failed to write to port: {}", e)
+    }
 }
 
 fn close_port(port: &mut Box<dyn SerialPort>){

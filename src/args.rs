@@ -88,6 +88,7 @@ fn parse_arguments(args: Vec<String>){
         stop_bits: stop_bits,
         flow_control: flow_control,
     };
+    println!("{baudrate}");
     call_program(serial_settings);
 }
 
