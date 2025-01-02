@@ -13,7 +13,11 @@ cargo build --release
 
 # Arguments
 
-Currently:
+If you decide to run the app as cargo run then please use the following command for arguments
+
+```sh
+cargo run -- {arg here as below}
+```
 
 ```sh
 -h gives the necessary information to run the program properly
