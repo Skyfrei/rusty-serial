@@ -6,6 +6,10 @@ Easy to understand and use, although currently the functionalities are a bit lim
 
 Similar to gtkterm, but without an annoying GUI. Fully terminal based.
 
+# Building
+```sh
+cargo build --release
+```
 
 # Arguments
 
