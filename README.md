@@ -40,3 +40,6 @@ After reading the port, we can write a command or just proceed with reading agai
 You can also type exit during write operation if u want to exit the program.
 
 Simply send an empty (just enter) serial message to read the next messages from the serial port.
+
+![Uploading image.png…]()
+
