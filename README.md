@@ -41,5 +41,6 @@ You can also type exit during write operation if u want to exit the program.
 
 Simply send an empty (just enter) serial message to read the next messages from the serial port.
 
-![Uploading image.png…]()
+![image](https://github.com/user-attachments/assets/3f884b51-3a8a-472d-898e-0017ae897b59)
+
 
